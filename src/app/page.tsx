@@ -25,9 +25,9 @@ import { FormEvent, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 export default function Home() {
 
-  const [ot, setOT] = useState(null);
-  const [calculatedHourlyRate, secalculatedHourlyRate] = useState(null);
-  const [calculatedHourlyRateAfter, secalculatedHourlyRateAfter] = useState(null);
+  const [ot, setOT] = useState<string | null>(null);
+  const [calculatedHourlyRate, secalculatedHourlyRate] = useState<string | null>(null);
+  const [calculatedHourlyRateAfter, secalculatedHourlyRateAfter] = useState<string | null>(null);
   const [show, setshow] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -37,12 +37,10 @@ export default function Home() {
     const salary = formData.get('salary');
     const hours = formData.get('hours');
     const type = formData.get('type');
-
-
-    const hourlyRate = salary * 12 / 365 / 8;
-    const hourlyRateWithOT = salary * 12 / 365 / 8 * type;
-
-    const calculatedOT = hourlyRate * type * hours;
+    
+    const hourlyRate = Number(salary) * 12 / 365 / 8;
+    const hourlyRateWithOT = Number(salary) * 12 / 365 / 8 * Number(type);
+    const calculatedOT = hourlyRate * Number(type) * Number(hours);
 
     setOT(calculatedOT.toFixed(3));
     secalculatedHourlyRate(hourlyRate.toFixed(3));
