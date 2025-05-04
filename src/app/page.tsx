@@ -23,6 +23,7 @@ import { ModeToggle } from "@/components/ui/modeButton";
 
 import { FormEvent, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { blockInvalidChar } from "@/components/blockInvalidChar";
 export default function Home() {
 
   const [ot, setOT] = useState<string | null>(null);
@@ -36,11 +37,15 @@ export default function Home() {
     const formData = new FormData(event.currentTarget);
     const salary = formData.get('salary');
     const hours = formData.get('hours');
+    const minutes = formData.get('minutes');
     const type = formData.get('type');
-    
+
+    // if(Number(minutes) > 60)
+
     const hourlyRate = Number(salary) * 12 / 365 / 8;
     const hourlyRateWithOT = Number(salary) * 12 / 365 / 8 * Number(type);
-    const calculatedOT = hourlyRate * Number(type) * Number(hours);
+    const minutesInpoints = Number(minutes) / 60;
+    const calculatedOT = hourlyRate * Number(type) * (Number(hours) + minutesInpoints);
 
     setOT(calculatedOT.toFixed(3));
     secalculatedHourlyRate(hourlyRate.toFixed(3));
@@ -99,26 +104,32 @@ export default function Home() {
               <form onSubmit={handleSubmit}>
                 <div className="grid w-full items-center gap-4">
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-0">
-                    <div className="flex flex-col space-y-1.5 w-full sm:w-1/2">   
+                    <div className="flex flex-col space-y-1.5 w-full sm:w-1/2">
                       <Label htmlFor="salary">Salary</Label>
-                      <Input id="salary" name="salary" placeholder="Your Salary in Bahraini Dinar" required />
+                      <Input id="salary" name="salary" placeholder="Your Salary in Bahraini Dinar" required type="number" min="0" onKeyDown={blockInvalidChar}/>
                     </div>
                     <div className="flex flex-col space-y-1.5 w-full sm:w-1/2 sm:px-5">
-                      <Label htmlFor="hours">Hours</Label>
-                      <Input id="hours" name="hours" placeholder="Your OT hours" required />
+                      <Label htmlFor="type">Working hours type</Label>
+                      <Select name="type" required>
+                        <SelectTrigger id="type">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="1.25">Normal Day</SelectItem>
+                          <SelectItem value="1.5">Holidays</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="type">Working hours type</Label>
-                    <Select name="type" required>
-                      <SelectTrigger id="type">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem value="1.25">Normal Day</SelectItem>
-                        <SelectItem value="1.5">Holidays</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-0">
+                    <div className="flex flex-col space-y-1.5 w-full sm:w-1/2">
+                      <Label htmlFor="hours">Hours</Label>
+                      <Input id="hours" name="hours" placeholder="Your OT hours" required type="number" min="0" onKeyDown={blockInvalidChar}/>
+                    </div>
+                    <div className="flex flex-col space-y-1.5 w-full sm:w-1/2 sm:px-5">
+                      <Label htmlFor="minutes">Minutes</Label>
+                      <Input id="minutes" name="minutes" placeholder="Your OT minutes" required type="number" min="0" max="60" defaultValue={0} onKeyDown={blockInvalidChar}/>
+                    </div>
                   </div>
                 </div>
                 <div className="py-5">
@@ -127,32 +138,32 @@ export default function Home() {
               </form>
               {/* Result Data Form */}
               {show && (
-              <div className="space-y-3">
-                <div className="py-2">
-                  <Card className="w-full">
-                    <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
-                      <Label className="text-sm sm:text-base">Calculated Over time:</Label>
-                      <Label className="text-lg sm:text-xl font-semibold text-primary">{ot} BHD</Label>
-                    </div>
-                  </Card>
-                </div>
-                <div className="py-2">
-                  <Card className="w-full">
-                    <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
-                      <Label className="text-sm sm:text-base">Hourly Rate (Before OT):</Label>
-                      <Label className="text-lg sm:text-xl font-semibold text-primary">{calculatedHourlyRate} BHD</Label>
-                    </div>
-                  </Card>
-                </div>
-                <div className="py-2">
-                  <Card className="w-full">
-                    <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
-                      <Label className="text-sm sm:text-base">Hourly Rate (After OT):</Label>
-                      <Label className="text-lg sm:text-xl font-semibold text-primary">{calculatedHourlyRateAfter} BHD</Label>
-                    </div>
-                  </Card>
-                </div>
-              </div>)}
+                <div className="space-y-3">
+                  <div className="py-2">
+                    <Card className="w-full">
+                      <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
+                        <Label className="text-sm sm:text-base">Calculated Over time:</Label>
+                        <Label className="text-lg sm:text-xl font-semibold text-primary">{ot} BHD</Label>
+                      </div>
+                    </Card>
+                  </div>
+                  <div className="py-2">
+                    <Card className="w-full">
+                      <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
+                        <Label className="text-sm sm:text-base">Hourly Rate (Before OT):</Label>
+                        <Label className="text-lg sm:text-xl font-semibold text-primary">{calculatedHourlyRate} BHD</Label>
+                      </div>
+                    </Card>
+                  </div>
+                  <div className="py-2">
+                    <Card className="w-full">
+                      <div className="flex flex-col sm:flex-row justify-between p-4 gap-2">
+                        <Label className="text-sm sm:text-base">Hourly Rate (After OT):</Label>
+                        <Label className="text-lg sm:text-xl font-semibold text-primary">{calculatedHourlyRateAfter} BHD</Label>
+                      </div>
+                    </Card>
+                  </div>
+                </div>)}
             </CardContent>
             {/* <CardFooter >
             </CardFooter> */}
